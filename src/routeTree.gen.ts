@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AnalyzeRouteImport } from './routes/analyze'
 import { Route as FamilyRouteImport } from './routes/family'
+import { Route as PaidRouteImport } from './routes/paid'
 import { Route as VerifyRouteImport } from './routes/verify'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const FamilyRoute = FamilyRouteImport.update({
   path: '/family',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PaidRoute = PaidRouteImport.update({
+  id: '/paid',
+  path: '/paid',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyRoute = VerifyRouteImport.update({
   id: '/verify',
   path: '/verify',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analyze': typeof AnalyzeRoute
   '/family': typeof FamilyRoute
+  '/paid': typeof PaidRoute
   '/verify': typeof VerifyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analyze': typeof AnalyzeRoute
   '/family': typeof FamilyRoute
+  '/paid': typeof PaidRoute
   '/verify': typeof VerifyRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,22 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/analyze': typeof AnalyzeRoute
   '/family': typeof FamilyRoute
+  '/paid': typeof PaidRoute
   '/verify': typeof VerifyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analyze' | '/family' | '/verify'
+  fullPaths: '/' | '/analyze' | '/family' | '/paid' | '/verify'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analyze' | '/family' | '/verify'
-  id: '__root__' | '/' | '/analyze' | '/family' | '/verify'
+  to: '/' | '/analyze' | '/family' | '/paid' | '/verify'
+  id: '__root__' | '/' | '/analyze' | '/family' | '/paid' | '/verify'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyzeRoute: typeof AnalyzeRoute
   FamilyRoute: typeof FamilyRoute
+  PaidRoute: typeof PaidRoute
   VerifyRoute: typeof VerifyRoute
 }
 
@@ -92,6 +102,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof FamilyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/paid': {
+      id: '/paid'
+      path: '/paid'
+      fullPath: '/paid'
+      preLoaderRoute: typeof PaidRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify': {
       id: '/verify'
       path: '/verify'
@@ -106,6 +123,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyzeRoute: AnalyzeRoute,
   FamilyRoute: FamilyRoute,
+  PaidRoute: PaidRoute,
   VerifyRoute: VerifyRoute,
 }
 export const routeTree = rootRouteImport
