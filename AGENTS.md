@@ -8,3 +8,6 @@
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
 <!-- LOVABLE:END -->
+
+- Keep mock service calls behind `src/lib/api.ts` so a future `VITE_API_URL` backend can replace data without changing page components.
+- Keep all visible product copy behind the i18n helper; English is the fallback while Telugu and Hindi initially cover landing and emergency flows.

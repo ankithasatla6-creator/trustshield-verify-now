@@ -19,6 +19,7 @@
  */
 
 @theme inline {
+  --font-sans: "Manrope", "Noto Sans Telugu", "Noto Sans Devanagari", sans-serif;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -59,29 +60,41 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-warning-soft: var(--warning-soft);
+  --color-critical: var(--critical);
+  --color-critical-foreground: var(--critical-foreground);
+  --color-critical-soft: var(--critical-soft);
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.129 0.042 264.695);
+  --radius: 0.375rem;
+  --background: oklch(0.99 0.002 250);
+  --foreground: oklch(0.24 0.035 252);
   --card: oklch(1 0 0);
-  --card-foreground: oklch(0.129 0.042 264.695);
+  --card-foreground: oklch(0.24 0.035 252);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.129 0.042 264.695);
-  --primary: oklch(0.208 0.042 265.755);
-  --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
-  --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
-  --accent-foreground: oklch(0.208 0.042 265.755);
-  --destructive: oklch(0.577 0.245 27.325);
+  --primary: oklch(0.29 0.075 251);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.008 248);
+  --secondary-foreground: oklch(0.29 0.075 251);
+  --muted: oklch(0.96 0.008 248);
+  --muted-foreground: oklch(0.48 0.025 252);
+  --accent: oklch(0.93 0.025 244);
+  --accent-foreground: oklch(0.29 0.075 251);
+  --destructive: oklch(0.53 0.21 28);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
-  --ring: oklch(0.704 0.04 256.788);
+  --border: oklch(0.89 0.012 250);
+  --input: oklch(0.82 0.02 250);
+  --ring: oklch(0.52 0.15 247);
+  --warning: oklch(0.56 0.145 80);
+  --warning-foreground: oklch(0.18 0.03 80);
+  --warning-soft: oklch(0.96 0.045 88);
+  --critical: oklch(0.52 0.21 28);
+  --critical-foreground: oklch(0.99 0 0);
+  --critical-soft: oklch(0.96 0.035 25);
   --chart-1: oklch(0.646 0.222 41.116);
   --chart-2: oklch(0.6 0.118 184.704);
   --chart-3: oklch(0.398 0.07 227.392);
@@ -140,5 +153,25 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+    font-family: var(--font-sans);
+    font-size: 18px;
+    letter-spacing: 0;
   }
+
+  button, a, input, textarea, select { letter-spacing: 0; }
+
+  h1 { font-size: clamp(2rem, 7vw, 3.5rem); font-weight: 900; line-height: 1.08; }
+  h2 { font-size: 1.25rem; font-weight: 800; line-height: 1.3; }
 }
+
+@utility page-wrap { margin-inline: auto; width: 100%; max-width: 72rem; padding: 2.5rem 1.25rem 4rem; }
+@utility page-intro { margin-top: 1rem; max-width: 42rem; color: var(--color-muted-foreground); font-size: 1.125rem; line-height: 1.75rem; }
+@utility section-kicker { margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; color: var(--color-primary); font-size: 0.875rem; font-weight: 900; text-transform: uppercase; }
+@utility content-panel { border: 1px solid var(--color-border); background: var(--color-card); padding: 1.25rem; box-shadow: 0 2px 8px oklch(0.2 0.03 250 / 0.06); }
+
+.risk-low { border-color: oklch(0.55 0.18 145); color: oklch(0.39 0.14 145); background: oklch(0.97 0.025 145); }
+.risk-caution { border-color: var(--warning); color: var(--warning); background: var(--warning-soft); }
+.risk-high { border-color: oklch(0.62 0.2 45); color: oklch(0.47 0.18 45); background: oklch(0.96 0.035 55); }
+.risk-critical { border-color: var(--critical); color: var(--critical); background: var(--critical-soft); }
+.simple-mode { font-size: 21px; }
+.simple-mode button, .simple-mode a { min-height: 3.5rem; }
