@@ -1,0 +1,4 @@
+import type { AnalysisResult } from "@/types/analysis";
+export function ActionPanel({ result }: { result: AnalysisResult }) {
+  return <section className="content-panel">{result.paymentWarning && <div className="mb-5 bg-critical p-4 text-center text-xl font-black text-critical-foreground">🛑 Do not pay yet</div>}<h2>What should I do?</h2><ol className="mt-4 space-y-3">{result.recommendedActions.map((action, index) => <li key={action} className="grid grid-cols-[2rem_1fr] gap-3"><span className="grid h-8 w-8 place-items-center rounded-full bg-primary font-bold text-primary-foreground">{index + 1}</span><span>{action}</span></li>)}</ol></section>;
+}
