@@ -12,7 +12,7 @@ export const Route = createFileRoute("/")({
 function Index() {
   const { t } = useI18n();
   const scenarios = [{ icon: "🎓", title: "student", text: "studentDesc", to: "/analyze" }, { icon: "👨‍👩‍👧", title: "familyTitle", text: "familyDesc", to: "/family" }, { icon: "💳", title: "paidTitle", text: "paidDesc", to: "/paid" }] as const;
-  const flow = [["01", "recognize", "recognizeDesc"], ["02", "verifyStep", "verifyStepDesc"], ["03", "prevent", "preventDesc"], ["04", "respond", "respondDesc"]];
+  const flow: Array<[string, string, string]> = [["01", "recognize", "recognizeDesc"], ["02", "verifyStep", "verifyStepDesc"], ["03", "prevent", "preventDesc"], ["04", "respond", "respondDesc"]];
   return (
     <div>
       <section className="border-b border-border bg-primary text-primary-foreground"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-16"><div className="max-w-3xl"><div className="mb-6 inline-flex items-center gap-2 border border-primary-foreground/30 px-3 py-2 text-sm font-bold"><ShieldCheck className="h-5 w-5"/>{t("brand")}</div><h1 className="text-4xl font-black leading-tight sm:text-6xl">{t("tagline")}</h1><p className="mt-5 max-w-2xl text-xl leading-8 text-primary-foreground/80">{t("heroText")}</p><div className="mt-8 grid gap-3 sm:grid-cols-2"><Button asChild className="min-h-14 bg-background text-primary hover:bg-background/90"><Link to="/analyze">{t("analyzeSuspicious")}<ArrowRight/></Link></Button><Button asChild variant="outline" className="min-h-14 border-primary-foreground/50 bg-transparent text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"><Link to="/paid">{t("alreadyLost")}</Link></Button></div></div></div></section>
