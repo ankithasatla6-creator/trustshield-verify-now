@@ -1,4 +1,4 @@
-import type { AnalysisResult } from "@/types/analysis";
+import type { AnalysisResult, VerifyLabel, VerifyResult } from "@/types/analysis";
 
 export const sampleMessages: Record<string, string> = {
   fakeInternship: "Congratulations! You are selected for a remote internship. Pay ₹4,999 registration fee today to confirm your place. Limited slots — send your Aadhaar and OTP now.",
@@ -34,3 +34,43 @@ export const safeResult: AnalysisResult = {
   verificationSteps: ["Compare the tracking ID with your order receipt.", "Contact the courier through its official website if unsure."],
   paymentWarning: false,
 };
+
+// Demo lists used until the backend's live checks are switched on.
+const TRUSTED_IDENTIFIERS = ["cybercrime.gov.in", "1930", "hdfcbank.com", "sbi.co.in", "icici.com", "axisbank.com", "phonepe.com", "paypal.com", "amazon.com", "flipkart.com", "whatsapp.com"];
+const REPORTED_IDENTIFIERS = ["refund-support@upi", "money-recovery@ybl", "secure-bank-update.xyz", "win-prize-top.click", "9999999999"];
+const RISKY_SUFFIXES = [".xyz", ".top", ".click", ".icu", ".online", ".shop", ".win", ".loan", ".biz"];
+
+export function mockVerifyResult(raw: string): VerifyResult {
+  const identifier = raw.trim();
+  const value = identifier.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
+  const kind = value.includes("@") && /@(upi|ybl|paytm|apl|okhdfcbank|oksbi|okaxis|okicici|ibl|fbl)$/i.test(value)
+    ? "upi"
+    : /@/.test(value)
+      ? "email"
+      : /^\+?[\d\s-]{7,15}$/.test(value)
+        ? "phone"
+        : /^[a-z0-9.-]+\.[a-z]{2,}/i.test(value)
+          ? "website"
+          : "organization";
+
+  let label: VerifyLabel = "Needs Verification";
+  let reason = "We could not match this identifier to a trusted or reported record. Confirm it through an official channel before you rely on it.";
+
+  if (REPORTED_IDENTIFIERS.includes(value)) {
+    label = "Reported Identifier";
+    reason = "This identifier appears in the demo list of records linked to reported scams.";
+  } else if (TRUSTED_IDENTIFIERS.includes(value)) {
+    label = "Verified";
+    reason = "This is the official contact detail for the organization. Check the exact page you are on before entering anything.";
+  } else if (/\.gov\.in$|\.gov$|\.edu\.in$|\.nic\.in$/.test(value)) {
+    label = "Verified";
+    reason = "This is a government domain. Check the exact page you are on before entering details.";
+  } else if (RISKY_SUFFIXES.some((suffix) => value.endsWith(suffix)) || (value.match(/-/g) ?? []).length >= 2) {
+    label = "Suspicious";
+    reason = "The address matches patterns seen in disposable scam sites. Verify it through another channel.";
+  } else if (/@(gmail|yahoo|outlook|hotmail)\./i.test(value)) {
+    reason = "This is a personal email address. Organizations usually write from their own domain — confirm the sender another way.";
+  }
+
+  return { identifier, kind, label, reason, checkedAt: new Date().toLocaleString("en-IN"), liveChecks: false };
+}
