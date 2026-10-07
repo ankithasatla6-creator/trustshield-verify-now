@@ -14,3 +14,18 @@ export type AnalysisResult = {
 export type CaseData = Record<string, string>;
 
 export type CaseResult = CaseData & { caseId: string; createdAt: string };
+
+export type VerifyLabel =
+  | "Verified"
+  | "Needs Verification"
+  | "Suspicious"
+  | "Reported Identifier";
+
+export type VerifyResult = {
+  identifier: string;
+  kind: string;
+  label: VerifyLabel;
+  reason: string;
+  checkedAt: string;
+  liveChecks: boolean;
+};
