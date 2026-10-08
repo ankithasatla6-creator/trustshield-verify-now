@@ -56,7 +56,7 @@ check("verification steps are never empty", risky.verificationSteps.length > 0);
 console.log("\nURL scores");
 for (const url of [
   "https://cybercrime.gov.in",
-  "http://secure-bank-update.xyz/login",
+  "http://cheap-laptop-offer.top/login",
   "https://bit.ly/3xYz",
 ]) {
   const result = analyzeLink(url);
@@ -66,7 +66,7 @@ for (const url of [
 check("government domain scores low", analyzeLink("https://cybercrime.gov.in").riskScore < 30);
 check(
   "fake bank domain scores high",
-  analyzeLink("http://secure-bank-update.xyz/login").riskScore >= 60,
+  analyzeLink("http://cheap-laptop-offer.top/login").riskScore >= 60,
 );
 
 console.log("\nVerify labels");
@@ -75,7 +75,7 @@ for (const identifier of [
   "1930",
   "refund-support@upi",
   "someone@gmail.com",
-  "secure-bank-update.xyz",
+  "cheap-laptop-offer.top",
 ]) {
   const result = verifyIdentifier(identifier);
   console.log(`  ${identifier.padEnd(24)} ${result.label}`);
@@ -93,7 +93,7 @@ check(
 );
 check(
   "throwaway domain is suspicious",
-  verifyIdentifier("secure-bank-update.xyz").label === "Suspicious",
+  verifyIdentifier("cheap-laptop-offer.top").label === "Suspicious",
 );
 
 console.log("\nCase building");

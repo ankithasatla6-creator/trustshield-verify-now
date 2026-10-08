@@ -111,7 +111,7 @@ const TEXT_RULES: Rule[] = [
     reason:
       "Money-recovery offers that ask for a fee first are a known repeat-scam pattern.",
     weight: "high",
-    points: 24,
+    points: 30,
     category: "Potential recovery scam",
     payment: true,
   },
