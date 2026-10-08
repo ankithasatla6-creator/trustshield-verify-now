@@ -80,3 +80,34 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Backend (optional)
+
+The frontend runs on its own using the mock data in `src/lib/mockData.ts`. A real API lives in [`server/`](server/README.md) — Node + TypeScript + Express — and implements the same calls the frontend already makes.
+
+Run it:
+
+```sh
+cd server
+npm i
+cp .env.example .env
+npm run dev        # serves http://localhost:8787
+npm test           # selftest: scoring, case ids, verify labels
+```
+
+Then tell the frontend to use it. Copy `.env.example` to `.env.local` in the project root and restart `npm run dev`:
+
+```sh
+VITE_API_URL=http://localhost:8787
+```
+
+With `VITE_API_URL` set, every request goes to the API; without it, the app falls back to mock data, so the preview keeps working.
+
+| Method | Endpoint | What it does |
+| --- | --- | --- |
+| GET | `/api/health` | Liveness check |
+| POST | `/api/analyze/text` | Scores a pasted message |
+| POST | `/api/analyze/url` | Scores a website address |
+| POST | `/api/verify` | Labels an identifier: Verified / Needs Verification / Suspicious / Reported Identifier |
+| POST | `/api/cases` | Builds a case, returns `CASE #TS-2026-001` |
+| GET | `/api/cases` · `/api/cases/:caseId` | Lists or reads stored cases (JSON file store) |
