@@ -79,7 +79,10 @@ function VerifyPage() {
           }}
           className="mt-3 h-14 text-lg"
         />
-        <Button disabled={!value.trim() || loading} onClick={submit} className="mt-4 min-h-14 w-full">
+        <Button disabled={!value.trim() || loading} onClick={submit} className="relative mt-4 min-h-14 w-full">
+          <span className="absolute -right-1 -top-2 rounded-full bg-warning px-2 py-0.5 text-[10px] font-black text-warning-foreground">
+            {t("comingSoon")}
+          </span>
           {loading ? (
             <>
               <LoaderCircle className="animate-spin" />
