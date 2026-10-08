@@ -3,7 +3,7 @@ import type { AnalysisResult, CaseData, CaseResult, VerifyResult } from "@/types
 
 // Set VITE_API_URL (see server/README.md) to use the real backend.
 // With no value, this layer keeps serving the mock data so the site still runs.
-const API_URL = (import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "");
+const API_URL = (import.meta.env["VITE_API_URL"] ?? "").replace(/\/+$/, "");
 
 export const isBackendEnabled = API_URL.length > 0;
 
