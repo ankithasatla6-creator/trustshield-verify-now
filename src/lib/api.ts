@@ -1,5 +1,5 @@
 import { mockVerifyResult, safeResult, suspiciousResult } from "@/lib/mockData";
-import type { AnalysisResult, CaseData, CaseResult, VerifyResult } from "@/types/analysis";
+import type { AnalysisResult, FileAnalysisResult, FileKind, CaseData, CaseResult, VerifyResult } from "@/types/analysis";
 
 // Set VITE_API_URL (see server/README.md) to use the real backend.
 // With no value, this layer keeps serving the mock data so the site still runs.
@@ -57,4 +57,34 @@ export async function verifyIdentifier(identifier: string): Promise<VerifyResult
   await wait(500);
   if (!identifier.trim()) throw new Error("empty");
   return mockVerifyResult(identifier);
+}
+
+export const FILE_LIMITS: Record<FileKind, { maxBytes: number; ext: string[]; accept: string }> = {
+  screenshot: { maxBytes: 5 * 1024 * 1024, ext: ["png", "jpg", "jpeg"], accept: ".png,.jpg,.jpeg,image/png,image/jpeg" },
+  document: { maxBytes: 10 * 1024 * 1024, ext: ["pdf", "doc", "docx"], accept: ".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+};
+
+export function validateFile(kind: FileKind, file: File): "unsupported-type" | "too-large" | null {
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  if (!FILE_LIMITS[kind].ext.includes(ext)) return "unsupported-type";
+  if (file.size > FILE_LIMITS[kind].maxBytes) return "too-large";
+  return null;
+}
+
+async function toBase64(file: File): Promise<string> {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  let binary = "";
+  for (let i = 0; i < bytes.length; i += 0x8000) binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  return btoa(binary);
+}
+
+export async function analyzeFile(kind: FileKind, file: File, note = ""): Promise<FileAnalysisResult> {
+  const invalid = validateFile(kind, file);
+  if (invalid) throw new Error(invalid);
+  if (isBackendEnabled) {
+    return post<FileAnalysisResult>("/api/analyze/file", { kind, fileName: file.name, mimeType: file.type, data: await toBase64(file), note });
+  }
+  await wait(900);
+  const base = note.trim() ? (/no payment|official/i.test(note) ? safeResult : suspiciousResult) : suspiciousResult;
+  return { ...base, fileName: file.name, extractedText: note, explanation: "Demo result: connect the backend to read the file's text." };
 }

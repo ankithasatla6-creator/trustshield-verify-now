@@ -41,6 +41,7 @@ npm run typecheck  # type-checks the service
 | GET    | `/api/health`        | —                           | service status              |
 | POST   | `/api/analyze/text`  | `{ "text": "..." }`         | risk score and red flags    |
 | POST   | `/api/analyze/url`   | `{ "url": "https://..." }`  | risk score and red flags    |
+| POST   | `/api/analyze/file`  | `{ kind, fileName, mimeType, data(base64), note? }` | risk score, red flags, explanation |
 | POST   | `/api/verify`        | `{ "identifier": "..." }`   | one of four result labels   |
 | POST   | `/api/cases`         | `{ "data": { ... } }`       | stored case with a case ID  |
 | GET    | `/api/cases`         | —                           | recent cases                |
@@ -93,3 +94,7 @@ Copy `.env.example` to `.env` to change any of these:
   scam", "high-risk pattern", "verification recommended".
 - Nothing here reports anything to the authorities or asks for a password, OTP
   or PIN. The site tells people that too.
+
+## File checks
+
+Screenshots: PNG/JPG/JPEG up to 5 MB. Documents: PDF/DOC/DOCX up to 10 MB. Type and file signature are both checked. Text is read from PDF/DOCX/DOC on the server; screenshots use the optional text the user types (no image text reading yet).

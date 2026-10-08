@@ -6,6 +6,7 @@ import express, {
   type Response,
 } from "express";
 import { CaseValidationError, createCase, getCase, listCases } from "./cases.ts";
+import { analyzeFile, FileValidationError } from "./files.ts";
 import { analyzeLink, analyzeMessage } from "./scoring.ts";
 import { VerifyValidationError, verifyIdentifier } from "./verify.ts";
 
@@ -20,6 +21,7 @@ const ALLOWED_ORIGINS = (
 
 const app = express();
 app.disable("x-powered-by");
+app.use("/api/analyze/file", express.json({ limit: "15mb" }));
 app.use(express.json({ limit: "256kb" }));
 app.use(cors({ origin: ALLOWED_ORIGINS.includes("*") ? true : ALLOWED_ORIGINS }));
 
@@ -98,6 +100,18 @@ app.post("/api/analyze/url", rateLimit, (req: Request, res: Response) => {
     res.json(analyzeLink(url));
   } catch {
     res.status(422).json({ error: "invalid-url" });
+  }
+});
+
+app.post("/api/analyze/file", rateLimit, (req: Request, res: Response) => {
+  try {
+    res.json(analyzeFile((req.body ?? {}) as Parameters<typeof analyzeFile>[0]));
+  } catch (error) {
+    if (error instanceof FileValidationError) {
+      res.status(error.code === "too-large" ? 413 : error.code === "unsupported-type" ? 415 : 422).json({ error: error.code });
+      return;
+    }
+    throw error;
   }
 });
 
