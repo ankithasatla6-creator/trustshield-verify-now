@@ -29,3 +29,7 @@ export type VerifyResult = {
   checkedAt: string;
   liveChecks: boolean;
 };
+
+export type FileKind = "screenshot" | "document";
+
+export type FileAnalysisResult = AnalysisResult & { fileName: string; extractedText: string; explanation: string };
