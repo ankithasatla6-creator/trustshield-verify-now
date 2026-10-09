@@ -329,7 +329,7 @@ export function analyzeMessage(text: string): AnalysisResult {
     const name = platformMatch.p.name;
     const paymentPushed = hits.some((h) => h.rule.payment && h.rule.points > 0) || (PAY_CHANNEL.test(text) && /\b(?:pay|send|transfer|fee|deposit)\b/i.test(text));
     if (paymentPushed && !nominalFee) {
-      add("brand-impersonation", platformMatch.m[0], `${name} is a legitimate, usually free program. If someone claims to represent them and demands payment, this is likely brand impersonation.`, "high", 18, { category: "Potential brand impersonation", payment: true });
+      add("brand-impersonation", platformMatch.m[0], `${name} is a legitimate, usually free program. If someone claims to represent them and demands payment, this is likely brand impersonation.`, "high", 30, { category: "Potential brand impersonation", payment: true });
     } else if (!nominalFee) {
       add("known-platform", platformMatch.m[0], `${name} is a recognized, legitimate program that is usually free. Still confirm the message came from its official website or email domain.`, "low", -12);
     } else {
