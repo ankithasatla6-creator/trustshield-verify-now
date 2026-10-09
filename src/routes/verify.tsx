@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { LoaderCircle, SearchCheck, ShieldAlert, ShieldCheck } from "lucide-react";
+import { ExternalLink, LoaderCircle, PhoneCall, SearchCheck, ShieldAlert, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useI18n } from "@/i18n";
 import { verifyIdentifier } from "@/lib/api";
 import { cn } from "@/lib/utils";
+import { verificationSignals } from "@/lib/verification-signals";
 import type { VerifyLabel, VerifyResult } from "@/types/analysis";
 
 export const Route = createFileRoute("/verify")({
@@ -42,6 +43,7 @@ function VerifyPage() {
   const [result, setResult] = useState<VerifyResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const details = result ? verificationSignals(result) : null;
 
   async function submit() {
     setLoading(true);
@@ -79,10 +81,7 @@ function VerifyPage() {
           }}
           className="mt-3 h-14 text-lg"
         />
-        <Button disabled={!value.trim() || loading} onClick={submit} className="relative mt-4 min-h-14 w-full">
-          <span className="absolute -right-1 -top-2 rounded-full bg-warning px-2 py-0.5 text-[10px] font-black text-warning-foreground">
-            {t("comingSoon")}
-          </span>
+        <Button disabled={!value.trim() || loading} onClick={submit} className="mt-4 min-h-14 w-full">
           {loading ? (
             <>
               <LoaderCircle className="animate-spin" />
@@ -106,11 +105,30 @@ function VerifyPage() {
             {t(LABEL_KEYS[result.label])}
           </p>
           <p className="mt-2 break-all text-xl font-bold text-foreground">{result.identifier}</p>
-          <p className="mt-4 text-foreground">{result.reason}</p>
+          <h2 className="mt-5">{t("verifyWhy")}</h2>
+          <p className="mt-3 text-foreground">{result.reason}</p>
+          {details && details.signals.length > 0 && <>
+            <h2 className="mt-5">{t("verifyIndicators")}</h2>
+            <ul className="mt-3 list-disc space-y-3 pl-5 text-foreground">
+              {details.signals.map((key) => <li key={key}>{t(key)}</li>)}
+            </ul>
+          </>}
+          {details && <p className="mt-4 text-foreground">{t(details.guidance)}</p>}
           <p className="mt-4 text-sm font-bold text-muted-foreground">
-            {result.checkedAt} · {result.kind}
+            {result.checkedAt} · {t(details?.kind ?? result.kind)}
           </p>
-          <p className="mt-3 font-bold">{t("liveSoon")}</p>
+          <p className="mt-3 text-foreground">{t("verifySignalsNote")}</p>
+          <p className="mt-3 text-sm text-muted-foreground">{t("verifyLimits")}</p>
+          <h2 className="mt-5">{t("verifyNextStep")}</h2>
+          <p className="mt-3 font-bold text-foreground">{t("verifyRecommendation")}</p>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <Button asChild variant="outline" className="min-h-14 whitespace-normal">
+              <a href="https://cybercrime.gov.in" target="_blank" rel="noopener noreferrer">{t("portal")}<ExternalLink aria-hidden="true" /></a>
+            </Button>
+            <Button asChild className="min-h-14 whitespace-normal">
+              <a href="tel:1930"><PhoneCall aria-hidden="true" />{t("helpline")}</a>
+            </Button>
+          </div>
           <Button
             variant="outline"
             onClick={() => {
