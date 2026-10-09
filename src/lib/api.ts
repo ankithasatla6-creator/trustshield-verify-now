@@ -1,4 +1,5 @@
-import { mockVerifyResult, safeResult, suspiciousResult } from "@/lib/mockData";
+import { mockVerifyResult } from "@/lib/mockData";
+import { analyzeLink, analyzeMessage } from "@/lib/scoring";
 import type { AnalysisResult, FileAnalysisResult, FileKind, CaseData, CaseResult, VerifyResult } from "@/types/analysis";
 
 // Set VITE_API_URL (see server/README.md) to use the real backend.
@@ -35,15 +36,14 @@ export async function analyzeText(text: string): Promise<AnalysisResult> {
   if (isBackendEnabled) return post<AnalysisResult>("/api/analyze/text", { text });
   await wait(700);
   if (!text.trim()) throw new Error("empty");
-  const likelySafe = /no payment|required|official courier|scheduled for delivery/i.test(text);
-  return likelySafe ? safeResult : suspiciousResult;
+  return analyzeMessage(text);
 }
 
 export async function analyzeUrl(url: string): Promise<AnalysisResult> {
   if (isBackendEnabled) return post<AnalysisResult>("/api/analyze/url", { url });
   await wait(700);
   if (!/^https?:\/\//i.test(url)) throw new Error("invalid-url");
-  return /official|gov\.in/i.test(url) ? safeResult : suspiciousResult;
+  try { return analyzeLink(url.trim()); } catch { throw new Error("invalid-url"); }
 }
 
 export async function buildCase(data: CaseData): Promise<CaseResult> {
@@ -85,6 +85,6 @@ export async function analyzeFile(kind: FileKind, file: File, note = ""): Promis
     return post<FileAnalysisResult>("/api/analyze/file", { kind, fileName: file.name, mimeType: file.type, data: await toBase64(file), note });
   }
   await wait(900);
-  const base = note.trim() ? (/no payment|official/i.test(note) ? safeResult : suspiciousResult) : suspiciousResult;
-  return { ...base, fileName: file.name, extractedText: note, explanation: "Demo result: connect the backend to read the file's text." };
+  const base = analyzeMessage(note);
+  return { ...base, fileName: file.name, extractedText: note, explanation: note.trim() ? "Checked the text you typed from this file. Connect the backend to read the file's text automatically." : "No readable text was provided, so no phrases were flagged. Verification recommended." };
 }
