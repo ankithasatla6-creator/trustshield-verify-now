@@ -1,4 +1,5 @@
-import type { AnalysisResult, RedFlag, Severity } from "./types.ts";
+import type { AnalysisResult, Severity } from "@/types/analysis";
+type RedFlagWeight = "high" | "medium" | "low";
 
 /**
  * Rule-based scam scorer.
@@ -12,7 +13,7 @@ type Rule = {
   id: string;
   pattern: RegExp;
   reason: string;
-  weight: RedFlag["weight"];
+  weight: RedFlagWeight;
   points: number;
   category?: string;
   payment?: boolean;
@@ -226,7 +227,7 @@ function toSeverity(score: number): Severity {
   return "LOW";
 }
 
-const WEIGHT_RANK: Record<RedFlag["weight"], number> = { high: 0, medium: 1, low: 2 };
+const WEIGHT_RANK: Record<RedFlagWeight, number> = { high: 0, medium: 1, low: 2 };
 
 function buildResult(
   hits: { rule: Rule; text: string; points?: number }[],
@@ -309,7 +310,7 @@ export function analyzeMessage(text: string): AnalysisResult {
     const match = rule.pattern.exec(text);
     return match && match[0] ? [{ rule, text: clip(match[0]) }] : [];
   });
-  const add = (id: string, matched: string, reason: string, weight: RedFlag["weight"], points: number, extra: { category?: string; payment?: boolean } = {}) =>
+  const add = (id: string, matched: string, reason: string, weight: RedFlagWeight, points: number, extra: { category?: string; payment?: boolean } = {}) =>
     hits.push({ rule: { id, pattern: /x/, reason, weight, points, ...extra }, text: clip(matched) });
 
   const platformMatch = KNOWN_PLATFORMS.map((p) => ({ p, m: p.pattern.exec(text) })).find((x) => x.m);
@@ -408,7 +409,7 @@ export function analyzeLink(raw: string): AnalysisResult {
     id: string,
     text: string,
     reason: string,
-    weight: RedFlag["weight"],
+    weight: RedFlagWeight,
     points: number,
     extra: { category?: string; payment?: boolean } = {},
   ) => hits.push({ rule: { id, pattern: /x/, reason, weight, points, ...extra }, text });
