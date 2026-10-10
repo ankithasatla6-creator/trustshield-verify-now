@@ -6,6 +6,8 @@ export const sampleMessages: Record<string, string> = {
   familyEmergency: "Mom, I lost my phone and I am in trouble. Please send ₹25,000 to this new UPI ID right now. Don't call me.",
   recovery: "We can recover all the money you lost. Pay a small processing fee first and we guarantee a full refund.",
   legitimateInternship: "Thank you for applying. Your interview is scheduled for Tuesday. Please join using the meeting link in your applicant portal. No payment is required.",
+  farmerScam: "రైతు బంధు / PM-Kisan 18th విడత ₹2,000 మీ ఖాతాలో జమ కాలేదు. వెంటనే ఈ క్రింది లింక్ ద్వారా ₹50 వెరిఫికేషన్ ఫీజు చెల్లించి, PMKisan_Yojana.apk యాప్ డౌన్‌లోడ్ చేసుకోండి: http://pmkisan-subsidy-release.xyz/apk",
+  bossUrgent: "Hi, this is your Managing Director. I am in a confidential client negotiation right now and cannot take phone calls. We need to lock this commercial site immediately. Transfer ₹3,50,000 token advance to this vendor UPI ID: land-token@ybl right away. Do not discuss this with other staff until deal is signed.",
   delivery: "Your parcel is scheduled for delivery today. Track it in the official courier app using tracking ID IN482910.",
 };
 
