@@ -22,6 +22,7 @@ type Rule = {
 const BASE_SCORE = 10;
 const MIN_SCORE = 6;
 const MAX_SCORE = 97;
+const LOW_RISK_MAX = 25;
 
 const TEXT_RULES: Rule[] = [
   {
@@ -144,6 +145,51 @@ const TEXT_RULES: Rule[] = [
     points: 10,
   },
   {
+    id: "welfare-scheme",
+    pattern: /pm[\s_-]?kisan|rythu\s+(?:bharosa|bandhu)|రైతు\s*(?:బంధు|భరోసా)|kisan\s+(?:subsidy|samman|yojana)|loan\s+waiver|రుణమాఫీ|fertili[sz]er\s+subsidy|ఎరువుల\s*సబ్సిడీ|किसान\s*(?:सम्मान|योजना|सब्सिडी)|कर्ज\s*माफ़?ी/i,
+    reason: "Government welfare schemes (PM-Kisan, Rythu Bharosa) never ask you to pay a fee or install an APK to release funds.",
+    weight: "medium",
+    points: 12,
+    category: "Farmer / Welfare Scheme Fraud",
+  },
+  {
+    id: "apk-download",
+    pattern: /[\w-]+\.apk\b|\/apk\b|(?:download|install)\s+(?:the\s+|this\s+)?(?:apk|app\s+from\s+(?:this\s+)?link)/i,
+    reason: "APK files sent over WhatsApp or SMS can install malware that reads your OTPs and empties your bank account.",
+    weight: "high",
+    points: 30,
+  },
+  {
+    id: "power-cut",
+    pattern: /power\s+(?:cut|disconnect(?:ion)?)|(?:electricity|current|power)\s+(?:will\s+be\s+)?(?:disconnected|cut)|disconnect(?:ed|ion)?\s+tonight|విద్యుత్\s*బిల్లు|కరెంట్\s*కట్|बिजली\s*(?:बिल|कट)/i,
+    reason: "Electricity boards never threaten immediate same-day disconnection via WhatsApp or unofficial phone numbers.",
+    weight: "high",
+    points: 24,
+    category: "Farmer / Welfare Scheme Fraud",
+  },
+  {
+    id: "executive-claim",
+    pattern: /\b(?:this\s+is\s+(?:your\s+|the\s+)?|i\s+am\s+(?:your\s+|the\s+)?)(?:managing\s+director|director|md|ceo|boss|owner|chairman|builder)\b|\b(?:managing\s+director|chairman|ceo)\b/i,
+    reason: "AI voice clones and spoofed WhatsApp profiles are frequently used to impersonate company directors and real-estate bosses.",
+    weight: "medium",
+    points: 14,
+  },
+  {
+    id: "token-advance",
+    pattern: /\btoken\s+(?:amount|advance)|\bland\s+advance\b/i,
+    reason: "Urgent token or land advances are a common hook in high-value transfer fraud.",
+    weight: "high",
+    points: 18,
+    payment: true,
+  },
+  {
+    id: "confidential-discuss",
+    pattern: /\b(?:do\s+not|don'?t)\s+discuss\b[^.]{0,30}|\bkeep\s+(?:this\s+)?confidential\b/i,
+    reason: "Being told not to discuss a payment with colleagues stops anyone from checking it.",
+    weight: "high",
+    points: 18,
+  },
+  {
     id: "no-payment-claimed",
     pattern:
       /\b(?:no\s+payment\s+(?:is\s+)?required|no\s+fee|no\s+charges?|free\s+of\s+charge|never\s+ask\s+for\s+(?:money|payment|an?\s+otp|your\s+password))\b/i,
@@ -170,6 +216,14 @@ const TEXT_RULES: Rule[] = [
 ];
 
 const CATEGORY_ACTIONS: Record<string, string[]> = {
+  "Farmer / Welfare Scheme Fraud": [
+    "Verify status only at official portals (pmkisan.gov.in) or visit your nearest Rythu Vedika / MeeSeva center.",
+    "Do not install apps (.apk files) or pay any fee sent through WhatsApp or SMS.",
+  ],
+  "Executive Impersonation / High-Value Fraud": [
+    "Never transfer money based solely on a message or voice note. Call the executive directly on their known personal number or verify in person.",
+    "Follow your company's payment approval process, however urgent the request sounds.",
+  ],
   "Potential brand impersonation": [
     "Check the program on its official website — genuine learning programs do not collect money through personal UPI, WhatsApp or Telegram.",
   ],
@@ -259,13 +313,18 @@ function buildResult(
   const topCategory = [...positive].sort((a, b) => b.rule.points - a.rule.points).find(
     (hit) => hit.rule.category,
   );
-  const category =
+  const rawCategory =
     topCategory?.rule.category ?? (riskScore >= 30 ? "High-risk pattern" : fallbackCategory);
+  // Low scores never get an alarming label.
+  const category =
+    riskScore <= LOW_RISK_MAX && /^(?:Potential|High-risk|Farmer|Executive)/.test(rawCategory)
+      ? "Likely Legitimate Program / Low Risk"
+      : rawCategory;
 
   const highCount = positive.filter((hit) => hit.rule.weight === "high").length;
   const confidence = highCount >= 2 ? "high" : highCount === 1 || positive.length >= 3 ? "moderate" : "low";
 
-  const actions = [...BASE_ACTIONS, ...positive.flatMap((hit) => CATEGORY_ACTIONS[hit.rule.category ?? ""] ?? [])];
+  const actions = [...(CATEGORY_ACTIONS[topCategory?.rule.category ?? ""] ?? []), ...BASE_ACTIONS, ...positive.flatMap((hit) => CATEGORY_ACTIONS[hit.rule.category ?? ""] ?? [])];
   const recommendedActions = [...new Set(actions)].slice(0, 5);
   const verificationSteps = [...new Set(BASE_STEPS)].slice(0, 4);
 
@@ -305,6 +364,9 @@ const AFTER_TASKS = /\b(?:after|upon|on)\s+(?:successful\s+)?(?:completion|compl
 const UPFRONT = /\b(?:before\s+(?:starting|joining|you\s+start)|to\s+(?:start|join|confirm|activate|book)|registration\s+fee|security\s+deposit|mandatory\s+(?:fee|payment))\b/i;
 const PAY_CHANNEL = /\b(?:upi|gpay|phonepe|paytm|telegram|whatsapp|personal\s+(?:account|number)|bank\s+transfer)\b/i;
 
+const WELFARE_FEE = /(?:₹|rs\.?)\s*\d[\d,]*\s*(?:వెరిఫికేషన్\s*|verification\s+|processing\s+|release\s+)?(?:ఫీజు|fee|शुल्क)|(?:verification|processing|release|registration)\s+(?:fee|ఫీజు)|వెరిఫికేషన్\s*ఫీజు|ఫీజు\s*చెల్లి|शुल्क/i;
+const UNAVAILABLE = /\b(?:in\s+a\s+(?:confidential\s+)?(?:\w+\s+){0,2}(?:meeting|negotiation)|cannot\s+(?:take|attend|receive)\s+(?:phone\s+)?calls?|can'?t\s+(?:take\s+calls?|talk)|unable\s+to\s+(?:talk|call|take\s+calls?))/i;
+
 export function analyzeMessage(text: string): AnalysisResult {
   let hits: { rule: Rule; text: string }[] = TEXT_RULES.flatMap((rule) => {
     const match = rule.pattern.exec(text);
@@ -312,6 +374,20 @@ export function analyzeMessage(text: string): AnalysisResult {
   });
   const add = (id: string, matched: string, reason: string, weight: RedFlagWeight, points: number, extra: { category?: string; payment?: boolean } = {}) =>
     hits.push({ rule: { id, pattern: /x/, reason, weight, points, ...extra }, text: clip(matched) });
+
+  const has = (id: string) => hits.some((h) => h.rule.id === id);
+  if (has("welfare-scheme")) {
+    const fee = WELFARE_FEE.exec(text);
+    if (fee?.[0]) add("welfare-fee", fee[0], "A fee demanded to release government funds is a classic welfare-scheme scam. Real benefits are credited without any payment.", "high", 32, { category: "Farmer / Welfare Scheme Fraud", payment: true });
+  }
+  const unavailable = UNAVAILABLE.exec(text);
+  if (unavailable?.[0]) {
+    if (has("executive-claim")) {
+      add("whaling", unavailable[0], "Urgent high-value transfer demands while claiming to be unable to take calls are a classic Executive Impersonation (Whaling) tactic.", "high", 30, { category: "Executive Impersonation / High-Value Fraud", payment: true });
+    } else {
+      add("unavailable", unavailable[0], "Saying they cannot take calls stops you from checking who is really asking.", "medium", 12);
+    }
+  }
 
   const platformMatch = KNOWN_PLATFORMS.map((p) => ({ p, m: p.pattern.exec(text) })).find((x) => x.m);
   const amounts = [...text.matchAll(AMOUNT)].map((m) => ({ raw: m[0], value: Number((m[1] ?? "").replace(/,/g, "")) }));
