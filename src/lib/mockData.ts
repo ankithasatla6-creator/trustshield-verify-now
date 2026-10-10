@@ -8,6 +8,7 @@ export const sampleMessages: Record<string, string> = {
   legitimateInternship: "Thank you for applying. Your interview is scheduled for Tuesday. Please join using the meeting link in your applicant portal. No payment is required.",
   farmerScam: "రైతు బంధు / PM-Kisan 18th విడత ₹2,000 మీ ఖాతాలో జమ కాలేదు. వెంటనే ఈ క్రింది లింక్ ద్వారా ₹50 వెరిఫికేషన్ ఫీజు చెల్లించి, PMKisan_Yojana.apk యాప్ డౌన్‌లోడ్ చేసుకోండి: http://pmkisan-subsidy-release.xyz/apk",
   bossUrgent: "Hi, this is your Managing Director. I am in a confidential client negotiation right now and cannot take phone calls. We need to lock this commercial site immediately. Transfer ₹3,50,000 token advance to this vendor UPI ID: land-token@ybl right away. Do not discuss this with other staff until deal is signed.",
+  abroadStudent: "Dear Parent, your son studying in the US has been detained by airport immigration customs for visa violations. To prevent immediate deportation and arrest, you must transfer ₹2,50,000 for emergency legal clearance within 2 hours. Do not attempt to call his phone as it is seized.",
   delivery: "Your parcel is scheduled for delivery today. Track it in the official courier app using tracking ID IN482910.",
 };
 

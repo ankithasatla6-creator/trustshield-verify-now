@@ -189,6 +189,39 @@ const TEXT_RULES: Rule[] = [
     points: 18,
   },
   {
+    id: "abroad-context",
+    pattern: /\b(?:studying\s+abroad|overseas|abroad|in\s+the\s+(?:us|usa|uk|canada|australia|germany)|united\s+states|foreign\s+country)\b/i,
+    reason: "Scammers frequently exploit international time-zone differences (calling parents while students are asleep) combined with AI voice cloning or false arrest claims.",
+    weight: "medium",
+    points: 12,
+    category: "Overseas Student / Extortion Scam",
+  },
+  {
+    id: "immigration-threat",
+    pattern: /\b(?:immigration|customs|border\s+control|deport(?:ation|ed)?|detained|detention|airport\s+custody|visa\s+(?:cancellation|violation)|foreign\s+police)\b/i,
+    reason: "Official immigration agencies, consulates, and foreign police never demand instant bail or fines via UPI or unofficial wire transfer.",
+    weight: "high",
+    points: 30,
+    category: "Overseas Student / Extortion Scam",
+  },
+  {
+    id: "extortion-fee",
+    pattern: /\b(?:legal\s+fees?|emergency\s+(?:legal\s+)?clearance|bail|embassy\s+fine|prevent\s+(?:arrest|deportation))\b/i,
+    reason: "Urgent demands for bail, legal fees or clearance payments are a classic extortion pattern targeting parents.",
+    weight: "high",
+    points: 25,
+    category: "Overseas Student / Extortion Scam",
+    payment: true,
+  },
+  {
+    id: "phone-seized",
+    pattern: /\b(?:phone\s+(?:is\s+)?(?:seized|confiscated|unavailable|switched\s+off)|do\s+not\s+(?:attempt\s+to\s+)?call|don'?t\s+(?:try\s+to\s+)?call)\b/i,
+    reason: "Being told the student's phone is seized or unreachable stops you from checking — a high-risk isolation tactic.",
+    weight: "high",
+    points: 20,
+    category: "Overseas Student / Extortion Scam",
+  },
+  {
     id: "no-payment-claimed",
     pattern:
       /\b(?:no\s+payment\s+(?:is\s+)?required|no\s+fee|no\s+charges?|free\s+of\s+charge|never\s+ask\s+for\s+(?:money|payment|an?\s+otp|your\s+password))\b/i,
@@ -247,6 +280,11 @@ const CATEGORY_ACTIONS: Record<string, string[]> = {
   ],
   "Potential recovery scam": [
     "Do not pay a fee to someone offering to recover money you lost.",
+  ],
+  "Overseas Student / Extortion Scam": [
+    "Do not send money. Check the student's local time zone — they may be asleep or in class.",
+    "Call their roommate, landlord, university international students office, or trusted friends in that country.",
+    "Contact the official Indian Embassy / Consulate helpline in that country to verify genuine detentions.",
   ],
   "Potential fake opportunity": [
     "Treat an unusually generous offer as a reason to verify, not to hurry.",
