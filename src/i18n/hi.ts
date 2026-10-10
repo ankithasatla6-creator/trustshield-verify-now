@@ -11,4 +11,5 @@ export const hi: Record<string, string> = {
   verifyWhy: "इस नतीजे का कारण", verifyIndicators: "जाँच के संकेत", verifyNextStep: "सुझाया गया अगला कदम",
   verifyPersonalEmail: "यह निजी या मुफ़्त ईमेल सेवा का पता है। वैध संस्थाएँ सामान्यतः अपने आधिकारिक डोमेन का उपयोग करती हैं। केवल निजी ईमेल होना स्कैम का प्रमाण नहीं है।",
   verified: "सत्यापत", suspicious: "संदेहजनक", reportedIdentifier: "रपोर्ट क ग पहचान", verifying: "जाँच हो रह है…", verifyError: "उस पहचानकर्त क जाँच नहं सक। फिर से कश कर।",
+  farmerScam: "किसान / सब्सिडी स्कैम", bossUrgent: "बॉस / आपातकालीन ट्रांसफर",
 };
