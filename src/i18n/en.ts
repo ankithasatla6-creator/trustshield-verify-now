@@ -26,4 +26,5 @@ export const en = {
   verifyWebsiteGuidance: "Check the exact domain through an independently found official source. No matching warning does not guarantee legitimacy.",
   verified: "Verified", suspicious: "Suspicious", reportedIdentifier: "Reported Identifier", verifying: "Checking…", verifyError: "We couldn't check that identifier. Please try again.",
   uploadScreenshot: "Upload a screenshot (PNG, JPG, JPEG — up to 5 MB)", uploadDocument: "Upload a document (PDF, DOC, DOCX — up to 10 MB)", chooseFile: "Choose file", changeFile: "Change file", removeFile: "Remove", selectedFile: "Selected file", screenshotNote: "Type the words you see in the screenshot (recommended)", documentNote: "Add any extra details (optional)", analyzeFile: "Analyze file", fileTooLarge: "This file is too large.", fileWrongType: "This file type is not supported.", fileNoText: "We could not read text from this file. Try pasting it in the Message tab.", noFile: "Please choose a file first.", explanation: "Explanation",
+  farmerScam: "Farmer / Subsidy Scam", bossUrgent: "Boss / Urgent Wire",
 } as const;
