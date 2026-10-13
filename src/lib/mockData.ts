@@ -42,27 +42,6 @@ export const safeResult: AnalysisResult = {
 // Demo lists used until the backend's live checks are switched on.
 const TRUSTED_IDENTIFIERS = ["cybercrime.gov.in", "1930", "hdfcbank.com", "sbi.co.in", "icici.com", "axisbank.com", "phonepe.com", "paypal.com", "amazon.com", "flipkart.com", "whatsapp.com", "google.com", "microsoft.com"];
 const REPORTED_IDENTIFIERS = ["refund-support@upi", "money-recovery@ybl", "secure-bank-update.xyz", "win-prize-top.click", "9999999999"];
-const RISKY_SUFFIXES = [".xyz", ".top", ".click", ".icu", ".online", ".shop", ".win", ".loan", ".biz"];
-
-// Safe hostname parsing. Returns null for anything that is not a valid website address.
-function extractHostname(input: string): string | null {
-  const raw = input.trim().toLowerCase();
-  if (!raw || /\s/.test(raw)) return null;
-  try {
-    const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//.test(raw) ? raw : `https://${raw}`);
-    const host = url.hostname.replace(/\.$/, "").replace(/^www\./, "");
-    return host.includes(".") ? host : null;
-  } catch {
-    return null;
-  }
-}
-
-// True if host == trusted domain or a real subdomain of it (docs.google.com).
-// google.com.fake-example.com and google-security-check.com do NOT match.
-function isTrustedHost(host: string): boolean {
-  return TRUSTED_IDENTIFIERS.some((t) => t.includes(".") && (host === t || host.endsWith(`.${t}`)));
-}
-
 export function isDomainLike(value: string): boolean {
   return !value.includes("@") && !/^\+?[\d\s-]{7,15}$/.test(value) && /\.|^https?:/i.test(value);
 }
