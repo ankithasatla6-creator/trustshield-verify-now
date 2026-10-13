@@ -73,7 +73,7 @@ export function verifyIdentifier(raw: string): VerifyResult {
   const value = normalize(identifier);
   const host = value.replace(/\/.*$/, "");
 
-  const domainLike = kind === "website" || (kind === "organization" && !identifier.includes("@") && /\./.test(identifier));
+  const domainLike = (kind === "website" && !/(?:facebook|instagram|linkedin|twitter|x)\.com\/./i.test(identifier)) || /^https?:\/\/?$/i.test(identifier) || (kind === "organization" && !identifier.includes("@") && /\./.test(identifier));
   if (domainLike) {
     const domain = checkDomain(identifier);
     const reported = domain.host ? REPORTED.get(domain.host) : undefined;

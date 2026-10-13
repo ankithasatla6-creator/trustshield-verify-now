@@ -63,19 +63,6 @@ function isTrustedHost(host: string): boolean {
   return TRUSTED_IDENTIFIERS.some((t) => t.includes(".") && (host === t || host.endsWith(`.${t}`)));
 }
 
-const LEET: Record<string, string> = { "0": "o", "1": "l", "3": "e", "4": "a", "5": "s", "@": "a", $: "s" };
-
-// Flags look-alikes such as g00gle-security-check.com. A hyphen on its own is NOT suspicious.
-function looksLikeBrandImpersonation(host: string): boolean {
-  const name = host.split(".").slice(0, -1).join(".").replace(/\.(co|com|org|net|gov|ac|edu)$/, "");
-  const normalized = name.replace(/[01345@$]/g, (c) => LEET[c]);
-  return TRUSTED_IDENTIFIERS.some((t) => {
-    if (!t.includes(".")) return false;
-    const brand = t.split(".")[0];
-    return brand.length >= 5 && normalized.includes(brand) && name !== brand;
-  });
-}
-
 export function isDomainLike(value: string): boolean {
   return !value.includes("@") && !/^\+?[\d\s-]{7,15}$/.test(value) && /\.|^https?:/i.test(value);
 }
@@ -98,7 +85,7 @@ export function mockVerifyResult(raw: string): VerifyResult {
 
   if (!identifier) {
     reason = "Enter a phone number, email, website, UPI ID or organization name to check.";
-  } else if (kind === "website" || isDomainLike(value)) {
+  } else if (!/(?:facebook|instagram|linkedin|twitter|x)\.com\/./i.test(value) && (kind === "website" || isDomainLike(identifier))) {
     const domain = checkDomain(identifier);
     const host = domain.host;
     if (host && REPORTED_IDENTIFIERS.includes(host)) {
