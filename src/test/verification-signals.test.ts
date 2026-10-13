@@ -11,7 +11,10 @@ describe("Identifier presentation", () => {
   });
   it("explains exact website patterns even when the URL contains a path", () => {
     const details = verificationSignals(mockVerifyResult("https://bank-security-login.xyz/account"));
-    expect(details.signals).toEqual(expect.arrayContaining(["verifyRiskySuffix", "verifyHyphens"]));
+    const result = mockVerifyResult("https://bank-security-login.xyz/account");
+    expect(result.label).toBe("Suspicious");
+    expect(result.evidence?.join(" ")).toMatch(/\.xyz/);
+    expect(details.kind).toBe("website");
   });
   it("distinguishes UPI wording from proof of a reported owner", () => {
     const result = mockVerifyResult("refund-support@upi");
@@ -28,7 +31,21 @@ describe("Identifier presentation", () => {
   });
   it("qualifies static Verified matches", () => {
     const result = mockVerifyResult("cybercrime.gov.in");
-    expect(result.label).toBe("Verified");
+    expect(result.label).toBe("Known Official Domain");
     expect(verificationSignals(result).signals).toContain("verifyStaticMatch");
+  });
+  it.each(["google.com", "microsoft.com", "https://www.google.com/search", "mail.google.com"])("recognizes %s as a known official domain", (d) => {
+    expect(mockVerifyResult(d).label).toBe("Known Official Domain");
+  });
+  it("flags g00gle-security-check.com as a look-alike", () => {
+    const result = mockVerifyResult("g00gle-security-check.com");
+    expect(result.label).toBe("Suspicious");
+    expect(result.evidence?.join(" ")).toMatch(/google/);
+  });
+  it("does not flag hyphens alone", () => {
+    expect(mockVerifyResult("my-local-bakery.com").label).toBe("Needs Verification");
+  });
+  it.each(["goo gle.com", "google..com", "-bad-.com", "http://"])("marks %s as an invalid domain", (d) => {
+    expect(mockVerifyResult(d).label).toBe("Invalid Domain");
   });
 });

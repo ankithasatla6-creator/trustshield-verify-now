@@ -17,11 +17,11 @@ export function verificationSignals(result: VerifyResult) {
   const kind = upi ? "upi" : email ? "email" : social ? "social" : result.kind;
   const signals: string[] = [];
   if (email && /@(?:gmail|googlemail|outlook|hotmail|live|yahoo|ymail|aol|icloud|protonmail|proton)\./i.test(value)) signals.push("verifyPersonalEmail");
-  if (host && /\.(?:xyz|top|click|icu|online|shop|win|loan|biz)$/.test(host)) signals.push("verifyRiskySuffix");
-  if (host && (host.match(/-/g) ?? []).length >= 2) signals.push("verifyHyphens");
+  if (host && !result.evidence && /\.(?:xyz|top|click|icu|online|shop|win|loan|biz)$/.test(host)) signals.push("verifyRiskySuffix");
+  if (host && !result.evidence && (host.match(/-/g) ?? []).length >= 2) signals.push("verifyHyphens");
   if (upi && /refund|recovery|money-recovery|support/i.test(value.split("@")[0] ?? "")) signals.push("verifyUpiIndicator");
   if (result.label === "Reported Identifier") signals.push("verifyDemoReport");
-  if (result.label === "Verified") signals.push("verifyStaticMatch");
+  if (result.label === "Verified" || result.label === "Known Official Domain") signals.push("verifyStaticMatch");
   const guidance = kind === "upi" ? "verifyUpiGuidance" : kind === "phone" ? "verifyPhoneGuidance" : kind === "social" ? "verifySocialGuidance" : kind === "email" ? "verifyEmailGuidance" : "verifyWebsiteGuidance";
   return { kind, signals, guidance };
 }
