@@ -81,7 +81,7 @@ for (const identifier of [
   console.log(`  ${identifier.padEnd(24)} ${result.label}`);
 }
 
-check("official domain is verified", verifyIdentifier("cybercrime.gov.in").label === "Verified");
+check("official domain is verified", verifyIdentifier("cybercrime.gov.in").label === "Known Official Domain");
 check("helpline is verified", verifyIdentifier("1930").label === "Verified");
 check(
   "reported UPI is flagged",
@@ -91,10 +91,14 @@ check(
   "unknown personal email needs verification",
   verifyIdentifier("someone@gmail.com").label === "Needs Verification",
 );
-check(
-  "throwaway domain is suspicious",
-  verifyIdentifier("cheap-laptop-offer.top").label === "Suspicious",
-);
+check("google.com is a known official domain", verifyIdentifier("google.com").label === "Known Official Domain");
+check("microsoft.com is a known official domain", verifyIdentifier("https://www.microsoft.com/en-in").label === "Known Official Domain");
+check("g00gle-security-check.com is suspicious", verifyIdentifier("g00gle-security-check.com").label === "Suspicious");
+check("brand in subdomain is suspicious", verifyIdentifier("google.com.account-check.net").label === "Suspicious");
+check("hyphens alone are not suspicious", verifyIdentifier("my-local-bakery.com").label === "Needs Verification");
+for (const bad of ["goo gle.com", "google..com", "-bad-.com", "http://"]) {
+  check(`invalid domain: ${bad}`, verifyIdentifier(bad).label === "Invalid Domain");
+}
 
 console.log("\nCase building");
 const record = createCase({

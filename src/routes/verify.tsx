@@ -28,6 +28,8 @@ const TONES: Record<VerifyLabel, string> = {
   "Needs Verification": "risk-caution",
   Suspicious: "risk-high",
   "Reported Identifier": "risk-critical",
+  "Known Official Domain": "risk-low",
+  "Invalid Domain": "risk-caution",
 };
 
 const LABEL_KEYS: Record<VerifyLabel, string> = {
@@ -35,6 +37,8 @@ const LABEL_KEYS: Record<VerifyLabel, string> = {
   "Needs Verification": "needsVerification",
   Suspicious: "suspicious",
   "Reported Identifier": "reportedIdentifier",
+  "Known Official Domain": "knownOfficialDomain",
+  "Invalid Domain": "invalidDomain",
 };
 
 function VerifyPage() {
@@ -101,12 +105,18 @@ function VerifyPage() {
       {result && (
         <section aria-live="polite" className={cn("mt-6 border-l-8 bg-card p-6 shadow-sm", TONES[result.label])}>
           <p className="flex items-center gap-2 text-sm font-black uppercase">
-            {result.label === "Verified" ? <ShieldCheck aria-hidden="true" /> : <ShieldAlert aria-hidden="true" />}
+            {result.label === "Verified" || result.label === "Known Official Domain" ? <ShieldCheck aria-hidden="true" /> : <ShieldAlert aria-hidden="true" />}
             {t(LABEL_KEYS[result.label])}
           </p>
           <p className="mt-2 break-all text-xl font-bold text-foreground">{result.identifier}</p>
           <h2 className="mt-5">{t("verifyWhy")}</h2>
           <p className="mt-3 text-foreground">{result.reason}</p>
+          {result.evidence && result.evidence.length > 0 && <>
+            <h2 className="mt-5">{t("verifyEvidence")}</h2>
+            <ul className="mt-3 list-disc space-y-3 pl-5 text-foreground">
+              {result.evidence.map((item) => <li key={item}>{item}</li>)}
+            </ul>
+          </>}
           {details && details.signals.length > 0 && <>
             <h2 className="mt-5">{t("verifyIndicators")}</h2>
             <ul className="mt-3 list-disc space-y-3 pl-5 text-foreground">

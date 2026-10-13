@@ -1,3 +1,4 @@
+import { checkDomain } from "@/lib/domain-check";
 import type { AnalysisResult, VerifyLabel, VerifyResult } from "@/types/analysis";
 
 export const sampleMessages: Record<string, string> = {
@@ -41,38 +42,8 @@ export const safeResult: AnalysisResult = {
 // Demo lists used until the backend's live checks are switched on.
 const TRUSTED_IDENTIFIERS = ["cybercrime.gov.in", "1930", "hdfcbank.com", "sbi.co.in", "icici.com", "axisbank.com", "phonepe.com", "paypal.com", "amazon.com", "flipkart.com", "whatsapp.com", "google.com", "microsoft.com"];
 const REPORTED_IDENTIFIERS = ["refund-support@upi", "money-recovery@ybl", "secure-bank-update.xyz", "win-prize-top.click", "9999999999"];
-const RISKY_SUFFIXES = [".xyz", ".top", ".click", ".icu", ".online", ".shop", ".win", ".loan", ".biz"];
-
-// Safe hostname parsing. Returns null for anything that is not a valid website address.
-function extractHostname(input: string): string | null {
-  const raw = input.trim().toLowerCase();
-  if (!raw || /\s/.test(raw)) return null;
-  try {
-    const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//.test(raw) ? raw : `https://${raw}`);
-    const host = url.hostname.replace(/\.$/, "").replace(/^www\./, "");
-    return host.includes(".") ? host : null;
-  } catch {
-    return null;
-  }
-}
-
-// True if host == trusted domain or a real subdomain of it (docs.google.com).
-// google.com.fake-example.com and google-security-check.com do NOT match.
-function isTrustedHost(host: string): boolean {
-  return TRUSTED_IDENTIFIERS.some((t) => t.includes(".") && (host === t || host.endsWith(`.${t}`)));
-}
-
-const LEET: Record<string, string> = { "0": "o", "1": "l", "3": "e", "4": "a", "5": "s", "@": "a", $: "s" };
-
-// Flags look-alikes such as g00gle-security-check.com. A hyphen on its own is NOT suspicious.
-function looksLikeBrandImpersonation(host: string): boolean {
-  const name = host.split(".").slice(0, -1).join(".").replace(/\.(co|com|org|net|gov|ac|edu)$/, "");
-  const normalized = name.replace(/[01345@$]/g, (c) => LEET[c]);
-  return TRUSTED_IDENTIFIERS.some((t) => {
-    if (!t.includes(".")) return false;
-    const brand = t.split(".")[0];
-    return brand.length >= 5 && normalized.includes(brand) && name !== brand;
-  });
+export function isDomainLike(value: string): boolean {
+  return !value.includes("@") && !/^\+?[\d\s-]{7,15}$/.test(value) && /\.|^https?:/i.test(value);
 }
 
 export function mockVerifyResult(raw: string): VerifyResult {
@@ -93,23 +64,13 @@ export function mockVerifyResult(raw: string): VerifyResult {
 
   if (!identifier) {
     reason = "Enter a phone number, email, website, UPI ID or organization name to check.";
-  } else if (kind === "website") {
-    const host = extractHostname(identifier);
-    if (!host) {
-      reason = "This does not look like a valid website address. Check it and try again.";
-    } else if (REPORTED_IDENTIFIERS.includes(host)) {
-      label = "Reported Identifier";
-      reason = "This identifier appears in the demo list of records linked to reported scams.";
-    } else if (isTrustedHost(host)) {
-      label = "Verified";
-      reason = "This domain matches a recognized official domain in our demo rules. This is not a guarantee of safety. Check the exact page you are on before entering anything.";
-    } else if (/\.gov\.in$|\.gov$|\.edu\.in$|\.nic\.in$/.test(host)) {
-      label = "Verified";
-      reason = "This is a government domain. Check the exact page you are on before entering details.";
-    } else if (RISKY_SUFFIXES.some((s) => host.endsWith(s)) || looksLikeBrandImpersonation(host)) {
-      label = "Suspicious";
-      reason = "The address matches patterns seen in scam sites, such as a risky domain ending or a look-alike of a well-known brand. Verify it through another channel.";
+  } else if (!/(?:facebook|instagram|linkedin|twitter|x)\.com\/./i.test(value) && (kind === "website" || isDomainLike(identifier))) {
+    const domain = checkDomain(identifier);
+    const host = domain.host;
+    if (host && REPORTED_IDENTIFIERS.includes(host)) {
+      return { identifier, kind: "website", label: "Reported Identifier", reason: "This identifier appears in the demo list of records linked to reported scams.", evidence: domain.evidence, checkedAt: new Date().toLocaleString("en-IN"), liveChecks: false };
     }
+    return { identifier, kind: "website", label: domain.label, reason: domain.reason, evidence: domain.evidence, checkedAt: new Date().toLocaleString("en-IN"), liveChecks: false };
   } else if (REPORTED_IDENTIFIERS.includes(value)) {
     label = "Reported Identifier";
     reason = "This identifier appears in the demo list of records linked to reported scams.";

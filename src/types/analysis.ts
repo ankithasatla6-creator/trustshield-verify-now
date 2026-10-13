@@ -19,7 +19,9 @@ export type VerifyLabel =
   | "Verified"
   | "Needs Verification"
   | "Suspicious"
-  | "Reported Identifier";
+  | "Reported Identifier"
+  | "Known Official Domain"
+  | "Invalid Domain";
 
 export type VerifyResult = {
   identifier: string;
@@ -28,6 +30,7 @@ export type VerifyResult = {
   reason: string;
   checkedAt: string;
   liveChecks: boolean;
+  evidence?: string[];
 };
 
 export type FileKind = "screenshot" | "document";
