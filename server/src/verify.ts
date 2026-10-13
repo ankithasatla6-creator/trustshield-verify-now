@@ -1,3 +1,4 @@
+import { checkDomain } from "./domain-check.ts";
 import type { VerifyLabel, VerifyResult } from "./types.ts";
 
 /**
@@ -72,6 +73,19 @@ export function verifyIdentifier(raw: string): VerifyResult {
   const value = normalize(identifier);
   const host = value.replace(/\/.*$/, "");
 
+  const domainLike = kind === "website" || (kind === "organization" && !identifier.includes("@") && /\./.test(identifier));
+  if (domainLike) {
+    const domain = checkDomain(identifier);
+    const reported = domain.host ? REPORTED.get(domain.host) : undefined;
+    return {
+      identifier, kind: "website",
+      label: reported ? "Reported Identifier" : domain.label,
+      reason: reported ?? domain.reason,
+      evidence: domain.evidence,
+      checkedAt: new Date().toLocaleString("en-IN"), liveChecks: false,
+    };
+  }
+
   let label: VerifyLabel = "Needs Verification";
   let reason =
     "We could not match this identifier to a trusted or reported record. Confirm it through an official channel before you rely on it.";
@@ -85,7 +99,7 @@ export function verifyIdentifier(raw: string): VerifyResult {
   } else if (TRUSTED_SUFFIXES.some((suffix) => host.endsWith(suffix))) {
     label = "Verified";
     reason = "This is a government domain. Check the exact page you are on before entering details.";
-  } else if (RISKY_TLDS.some((tld) => host.endsWith(tld)) || (host.match(/-/g) ?? []).length >= 2) {
+  } else if (RISKY_TLDS.some((tld) => host.endsWith(tld))) {
     label = "Suspicious";
     reason =
       "The address matches patterns seen in disposable scam sites. Verify it through another channel.";

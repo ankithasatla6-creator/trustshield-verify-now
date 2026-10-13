@@ -1,3 +1,4 @@
+import { checkDomain } from "@/lib/domain-check";
 import type { AnalysisResult, VerifyLabel, VerifyResult } from "@/types/analysis";
 
 export const sampleMessages: Record<string, string> = {
@@ -75,6 +76,10 @@ function looksLikeBrandImpersonation(host: string): boolean {
   });
 }
 
+export function isDomainLike(value: string): boolean {
+  return !value.includes("@") && !/^\+?[\d\s-]{7,15}$/.test(value) && /\.|^https?:/i.test(value);
+}
+
 export function mockVerifyResult(raw: string): VerifyResult {
   const identifier = (raw ?? "").trim();
   const value = identifier.toLowerCase().replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
@@ -93,23 +98,13 @@ export function mockVerifyResult(raw: string): VerifyResult {
 
   if (!identifier) {
     reason = "Enter a phone number, email, website, UPI ID or organization name to check.";
-  } else if (kind === "website") {
-    const host = extractHostname(identifier);
-    if (!host) {
-      reason = "This does not look like a valid website address. Check it and try again.";
-    } else if (REPORTED_IDENTIFIERS.includes(host)) {
-      label = "Reported Identifier";
-      reason = "This identifier appears in the demo list of records linked to reported scams.";
-    } else if (isTrustedHost(host)) {
-      label = "Verified";
-      reason = "This domain matches a recognized official domain in our demo rules. This is not a guarantee of safety. Check the exact page you are on before entering anything.";
-    } else if (/\.gov\.in$|\.gov$|\.edu\.in$|\.nic\.in$/.test(host)) {
-      label = "Verified";
-      reason = "This is a government domain. Check the exact page you are on before entering details.";
-    } else if (RISKY_SUFFIXES.some((s) => host.endsWith(s)) || looksLikeBrandImpersonation(host)) {
-      label = "Suspicious";
-      reason = "The address matches patterns seen in scam sites, such as a risky domain ending or a look-alike of a well-known brand. Verify it through another channel.";
+  } else if (kind === "website" || isDomainLike(value)) {
+    const domain = checkDomain(identifier);
+    const host = domain.host;
+    if (host && REPORTED_IDENTIFIERS.includes(host)) {
+      return { identifier, kind: "website", label: "Reported Identifier", reason: "This identifier appears in the demo list of records linked to reported scams.", evidence: domain.evidence, checkedAt: new Date().toLocaleString("en-IN"), liveChecks: false };
     }
+    return { identifier, kind: "website", label: domain.label, reason: domain.reason, evidence: domain.evidence, checkedAt: new Date().toLocaleString("en-IN"), liveChecks: false };
   } else if (REPORTED_IDENTIFIERS.includes(value)) {
     label = "Reported Identifier";
     reason = "This identifier appears in the demo list of records linked to reported scams.";
