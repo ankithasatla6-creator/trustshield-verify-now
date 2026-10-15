@@ -70,7 +70,7 @@ export function mockVerifyResult(raw: string): VerifyResult {
     if (host && REPORTED_IDENTIFIERS.includes(host)) {
       return { identifier, kind: "website", label: "Reported Identifier", reason: "This identifier appears in the demo list of records linked to reported scams.", evidence: domain.evidence, checkedAt: new Date().toLocaleString("en-IN"), liveChecks: false };
     }
-    return { identifier, kind: "website", label: domain.label, reason: domain.reason, evidence: domain.evidence, checkedAt: new Date().toLocaleString("en-IN"), liveChecks: false };
+    return { identifier, kind: "website", label: domain.label, reason: domain.reason, evidence: domain.evidence, standardWebsite: domain.standardWebsite, checkedAt: new Date().toLocaleString("en-IN"), liveChecks: false };
   } else if (REPORTED_IDENTIFIERS.includes(value)) {
     label = "Reported Identifier";
     reason = "This identifier appears in the demo list of records linked to reported scams.";

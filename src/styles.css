@@ -175,3 +175,4 @@
 .risk-critical { border-color: var(--critical); color: var(--critical); background: var(--critical-soft); }
 .simple-mode { font-size: 21px; }
 .simple-mode button, .simple-mode a { min-height: 3.5rem; }
+.risk-neutral { border-color: var(--primary); color: var(--primary); background: var(--muted); }
