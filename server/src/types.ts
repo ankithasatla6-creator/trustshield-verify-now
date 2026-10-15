@@ -40,5 +40,5 @@ export type VerifyResult = {
   checkedAt: string;
   liveChecks: boolean;
   evidence?: string[];
-  standardWebsite?: boolean;
+  standardWebsite?: boolean | undefined;
 };
