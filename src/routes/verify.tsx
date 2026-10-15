@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ExternalLink, LoaderCircle, PhoneCall, SearchCheck, ShieldAlert, ShieldCheck } from "lucide-react";
+import { ExternalLink, Info, LoaderCircle, PhoneCall, SearchCheck, ShieldAlert, ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -103,11 +103,12 @@ function VerifyPage() {
       </section>
 
       {result && (
-        <section aria-live="polite" className={cn("mt-6 border-l-8 bg-card p-6 shadow-sm", TONES[result.label])}>
+        <section aria-live="polite" className={cn("mt-6 border-l-8 bg-card p-6 shadow-sm", result.standardWebsite ? "risk-neutral" : TONES[result.label])}>
           <p className="flex items-center gap-2 text-sm font-black uppercase">
-            {result.label === "Verified" || result.label === "Known Official Domain" ? <ShieldCheck aria-hidden="true" /> : <ShieldAlert aria-hidden="true" />}
+            {result.label === "Verified" || result.label === "Known Official Domain" ? <ShieldCheck aria-hidden="true" /> : result.standardWebsite ? <Info aria-hidden="true" /> : <ShieldAlert aria-hidden="true" />}
             {t(LABEL_KEYS[result.label])}
           </p>
+          {result.standardWebsite && <p className="mt-1 font-bold">{t("standardWebsite")}</p>}
           <p className="mt-2 break-all text-xl font-bold text-foreground">{result.identifier}</p>
           <h2 className="mt-5">{t("verifyWhy")}</h2>
           <p className="mt-3 text-foreground">{result.reason}</p>
