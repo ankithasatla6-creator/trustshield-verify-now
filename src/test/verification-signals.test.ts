@@ -48,4 +48,18 @@ describe("Identifier presentation", () => {
   it.each(["goo gle.com", "google..com", "-bad-.com", "http://"])("marks %s as an invalid domain", (d) => {
     expect(mockVerifyResult(d).label).toBe("Invalid Domain");
   });
+  it.each(["sbi.co.in", "hdfcbank.com", "icicibank.com", "axisbank.com", "paytm.com", "phonepe.com", "npci.org.in", "amazon.in", "flipkart.com", "myntra.com", "meesho.com", "github.com", "linkedin.com", "coursera.org", "udemy.com", "naukri.com", "internshala.com", "apple.com", "infyspringboard.onwingspan.com"])("recognizes %s as official", (d) => {
+    expect(mockVerifyResult(d).label).toBe("Known Official Domain");
+  });
+  it.each(["my-local-bakery.com", "sharma-tailors-hyderabad.in", "example.org", "sarkari-naukri-updates.com"])("treats %s as a neutral standard website", (d) => {
+    const result = mockVerifyResult(d);
+    expect(result.label).toBe("Needs Verification");
+    expect(result.standardWebsite).toBe(true);
+    expect(result.reason).toMatch(/Standard Website/);
+  });
+  it.each(["sbi.co.in.verify-login.xyz", "paytrn.com", "myntra-offers.shop", "flipkart-sale.com", "amaz0n.in", "g00gle-security-check.com"])("keeps %s suspicious and not official", (d) => {
+    const result = mockVerifyResult(d);
+    expect(result.label).toBe("Suspicious");
+    expect(result.standardWebsite).toBeFalsy();
+  });
 });
