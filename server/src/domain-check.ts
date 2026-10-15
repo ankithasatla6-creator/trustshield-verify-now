@@ -3,25 +3,42 @@
  * Static, offline rules only: no WHOIS, live reputation or security scan is performed.
  */
 export type DomainLabel = "Known Official Domain" | "Suspicious" | "Needs Verification" | "Invalid Domain";
-export type DomainCheck = { label: DomainLabel; host: string; reason: string; evidence: string[] };
+export type DomainCheck = { label: DomainLabel; host: string; reason: string; evidence: string[]; standardWebsite?: boolean };
 
 // Curated reference list: exact registered domains → brand name. Add entries here.
 export const OFFICIAL_DOMAINS: Record<string, string> = {
+  // Banking, payments and government-backed finance (India)
+  "sbi.co.in": "SBI", "onlinesbi.sbi": "SBI", "sbi.bank.in": "SBI", "hdfcbank.com": "HDFC Bank", "hdfc.bank.in": "HDFC Bank",
+  "icicibank.com": "ICICI Bank", "icici.bank.in": "ICICI Bank", "icici.com": "ICICI", "axisbank.com": "Axis Bank", "axis.bank.in": "Axis Bank",
+  "kotak.com": "Kotak Mahindra Bank", "pnbindia.in": "Punjab National Bank", "bankofbaroda.in": "Bank of Baroda",
+  "rbi.org.in": "Reserve Bank of India", "npci.org.in": "NPCI", "bhimupi.org.in": "BHIM UPI",
+  "paytm.com": "Paytm", "phonepe.com": "PhonePe", "razorpay.com": "Razorpay", "paypal.com": "PayPal",
+  "lic.co.in": "LIC", "licindia.in": "LIC", "zerodha.com": "Zerodha", "groww.in": "Groww",
+  // Shopping, food and travel (India)
+  "amazon.in": "Amazon India", "flipkart.com": "Flipkart", "myntra.com": "Myntra", "meesho.com": "Meesho",
+  "ajio.com": "AJIO", "nykaa.com": "Nykaa", "swiggy.com": "Swiggy", "zomato.com": "Zomato",
+  "bigbasket.com": "BigBasket", "irctc.co.in": "IRCTC", "makemytrip.com": "MakeMyTrip", "jio.com": "Jio", "airtel.in": "Airtel",
+  // Jobs, learning and internships
+  "naukri.com": "Naukri", "internshala.com": "Internshala", "coursera.org": "Coursera", "udemy.com": "Udemy",
+  "edx.org": "edX", "khanacademy.org": "Khan Academy", "swayam.gov.in": "SWAYAM", "nptel.ac.in": "NPTEL",
+  "onwingspan.com": "Infosys Springboard", "infosys.com": "Infosys", "tcs.com": "TCS", "wipro.com": "Wipro",
+  "linkedin.com": "LinkedIn", "indeed.com": "Indeed", "unstop.com": "Unstop",
+  // Global technology and services
   "google.com": "Google", "microsoft.com": "Microsoft", "apple.com": "Apple", "amazon.com": "Amazon",
-  "amazon.in": "Amazon", "flipkart.com": "Flipkart", "paypal.com": "PayPal", "whatsapp.com": "WhatsApp",
-  "facebook.com": "Facebook", "instagram.com": "Instagram", "linkedin.com": "LinkedIn", "github.com": "GitHub",
-  "youtube.com": "YouTube", "netflix.com": "Netflix", "hdfcbank.com": "HDFC Bank", "sbi.co.in": "SBI",
-  "onlinesbi.sbi": "SBI", "icicibank.com": "ICICI Bank", "icici.com": "ICICI", "axisbank.com": "Axis Bank",
-  "phonepe.com": "PhonePe", "paytm.com": "Paytm", "npci.org.in": "NPCI", "infosys.com": "Infosys",
-  "tcs.com": "TCS", "wipro.com": "Wipro", "internshala.com": "Internshala",
+  "github.com": "GitHub", "youtube.com": "YouTube", "netflix.com": "Netflix", "whatsapp.com": "WhatsApp",
+  "facebook.com": "Facebook", "instagram.com": "Instagram", "wikipedia.org": "Wikipedia", "openai.com": "OpenAI",
+  "zoom.us": "Zoom", "dropbox.com": "Dropbox", "adobe.com": "Adobe", "x.com": "X", "twitter.com": "X",
 };
+
+// Common words that are also brand names; skipped for look-alike/brand-in-name checks to avoid false alarms.
+const GENERIC_BRAND_WORDS = ["naukri", "indeed", "unstop", "zoom", "groww", "kotak"];
 
 const OFFICIAL_SUFFIXES = [".gov.in", ".gov", ".nic.in", ".edu.in", ".ac.in", ".res.in"];
 const MULTI_PART_TLDS = ["co.in", "org.in", "net.in", "gov.in", "nic.in", "ac.in", "edu.in", "res.in", "co.uk", "com.au"];
 const RISKY_TLDS = ["xyz", "top", "click", "icu", "online", "shop", "win", "loan", "biz"];
 const LURE_WORDS = ["login", "verify", "secure", "security", "update", "account", "support", "kyc", "refund", "reward", "check", "alert"];
 
-const BRANDS = Array.from(new Set(Object.keys(OFFICIAL_DOMAINS).map((d) => d.split(".")[0] ?? ""))).filter((b) => b.length >= 4);
+const BRANDS = Array.from(new Set(Object.keys(OFFICIAL_DOMAINS).map((d) => d.split(".")[0] ?? ""))).filter((b) => b.length >= 4 && !GENERIC_BRAND_WORDS.includes(b));
 
 function deconfuse(text: string): string {
   return text.replace(/0/g, "o").replace(/[1l|]/g, "l").replace(/3/g, "e").replace(/4/g, "a").replace(/5/g, "s").replace(/7/g, "t").replace(/rn/g, "m").replace(/vv/g, "w");
@@ -101,6 +118,10 @@ export function checkDomain(raw: string): DomainCheck {
   if (strong || (lures.length > 0 && RISKY_TLDS.includes(tld))) {
     return { label: "Suspicious", host, reason: "This domain shows signs of imitating a well-known brand or a phishing pattern. Do not enter details; go to the official website by typing it yourself.", evidence };
   }
-  if (evidence.length === 0) evidence.push("No match in the official reference list and no look-alike signals were found.");
-  return { label: "Needs Verification", host, reason: "This domain is not in TrustShield's reference list of official domains. That alone does not make it unsafe — confirm it through the organization's official channels.", evidence };
+  if (evidence.length === 0) {
+    evidence.push("Not in TrustShield's curated list of official domains, and no look-alike or phishing patterns were found.");
+    evidence.push("New or smaller websites are often simply absent from the list — unlisted does not mean fraudulent.");
+    return { label: "Needs Verification", host, standardWebsite: true, reason: "Standard Website — no specific scam patterns detected by this check. This is not a safety guarantee; if you plan to pay or share personal details, confirm the site through the organization's official channels.", evidence };
+  }
+  return { label: "Needs Verification", host, reason: "This domain is not in TrustShield's reference list and shows some wording worth a closer look. Confirm it through the organization's official channels before entering details.", evidence };
 }

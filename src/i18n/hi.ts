@@ -10,7 +10,7 @@ export const hi: Record<string, string> = {
   verifyRecommendation: "पैसे भेजने या OTP, पासवर्ड, आधार विवरण और अन्य संवेदनशील जानकारी साझा करने से पहले संस्था की आधिकारिक वेबसाइट या किसी अन्य विश्वसनीय संपर्क से पुष्टि करें।",
   verifyWhy: "इस नतीजे का कारण", verifyIndicators: "जाँच के संकेत", verifyNextStep: "सुझाया गया अगला कदम",
   verifyPersonalEmail: "यह निजी या मुफ़्त ईमेल सेवा का पता है। वैध संस्थाएँ सामान्यतः अपने आधिकारिक डोमेन का उपयोग करती हैं। केवल निजी ईमेल होना स्कैम का प्रमाण नहीं है।",
-  knownOfficialDomain: "ज्ञात आधिकारिक डोमेन", invalidDomain: "अमान्य डोमेन", verifyEvidence: "मिले सबूत",
+  standardWebsite: "सामान्य वेबसाइट — इस जाँच में कोई विशेष स्कैम पैटर्न नहीं मिला।", knownOfficialDomain: "ज्ञात आधिकारिक डोमेन", invalidDomain: "अमान्य डोमेन", verifyEvidence: "मिले सबूत",
   verified: "सत्यापत", suspicious: "संदेहजनक", reportedIdentifier: "रपोर्ट क ग पहचान", verifying: "जाँच हो रह है…", verifyError: "उस पहचानकर्त क जाँच नहं सक। फिर से कश कर।",
   farmerScam: "किसान / सब्सिडी स्कैम", bossUrgent: "बॉस / आपातकालीन ट्रांसफर", abroadStudent: "विदेश में छात्र स्कैम",
 };

@@ -82,6 +82,7 @@ export function verifyIdentifier(raw: string): VerifyResult {
       label: reported ? "Reported Identifier" : domain.label,
       reason: reported ?? domain.reason,
       evidence: domain.evidence,
+      ...(reported ? {} : { standardWebsite: domain.standardWebsite }),
       checkedAt: new Date().toLocaleString("en-IN"), liveChecks: false,
     };
   }
